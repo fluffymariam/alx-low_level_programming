@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 /**
- * main - Entry point of the program
+ * main - Prints the alphabeths in lower case
  *
- * Return = Always 0 (Success)
+ * Return: Always 0 (Success)
  */
 
 int main(void)
@@ -16,8 +17,6 @@ int main(void)
 		putchar(letter);
 		letter++;
 	}
-
 	putchar('\n');
-
 	return (0);
 }
