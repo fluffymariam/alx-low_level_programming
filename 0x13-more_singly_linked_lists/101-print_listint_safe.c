@@ -49,3 +49,34 @@ size_t looped_listint_len(const listint_t *head)
 	}
 	return (0);
 }
+
+/**
+ * print_listint_safe - will print in a safe form
+ * @head:points to the first node
+ * Return: the num to be printed
+ */
+
+size_t print_listint_safe(const listint_t *head)
+{
+	size_t a, b = 0;
+		a = looped_listint_len(head);
+	if (a == 0)
+	{
+		for (; head != NULL; a++)
+		{
+			printf("[%p]%d\n", (void *)head, head->n);
+			head = head->next;
+		}
+	}
+	else
+	{
+		for (b = 0; b < a; b++)
+		{
+			printf("[%p]%d\n", (void *)head, head->n);
+			head = head->next;
+		}
+
+		printf("->[%p]%d\n", (void *)head, head->n);
+	}
+	return (a);
+}
