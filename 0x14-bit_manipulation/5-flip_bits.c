@@ -1,11 +1,11 @@
 #include "main.h"
 
 /**
- * flip_bits - counts bits
- * @n: number 
+ * flip_bits - counts the num of bits
+ * @n: number
  * @m: second num
  *
- * Retuen: the num of bits
+ * Return: the num of bits
  */
 
 unsigned int flip_bits(unsigned long int n, unsigned long int m)
