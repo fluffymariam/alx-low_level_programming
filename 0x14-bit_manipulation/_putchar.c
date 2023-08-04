@@ -11,5 +11,5 @@
 
 int _putchar(char c)
 {
-	retuen (write(1, &c, 1));
+	return (write(1, &c, 1));
 }
