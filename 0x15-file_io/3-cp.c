@@ -5,11 +5,26 @@
 
 #define BUFFER_SIZE 1024
 
+/**
+ * error_exit - Prints an error message and exits with the given code.
+ * @message: The error message format string.
+ * @filename: The name of the file associated with the error.
+ * @code: The exit code.
+ */
+
 void error_exit(const char *message, const char *filename, int code)
 {
 	dprintf(STDERR_FILENO, message, filename);
 	exit(code);
 }
+
+/**
+ * main - The entry point of the program.
+ * @argc: The number of command-line arguments.
+ * @argv: An array of strings representing the command-line arguments.
+ *
+ * Return: 0 on success, other values on failure.
+ */
 
 int main(int argc, char *argv[])
 {
@@ -44,19 +59,13 @@ int main(int argc, char *argv[])
 	}
 
 	if (bytes_read == -1)
-	{
 		error_exit("Error while reading from file %s\n", argv[1], 98);
-	}
 
 	if (close(file_from) == -1)
-	{
 		error_exit("Error: Can't close fd %d\n", argv[1], 100);
-	}
 
 	if (close(file_to) == -1)
-	{
 		error_exit("Error: Can't close fd %d\n", argv[2], 100);
-	}
 
 	return (0);
 }
