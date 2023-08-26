@@ -1,90 +1,149 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <elf.h>
+#include "main.h"
 
-void error_exit(const char *message, const char *filename, int code);
-void print_elf_header(Elf64_Ehdr *girl);
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
 
-void error_exit(const char *message, const char *filename, int code)
+/**
+ * _write - function writes data to a file descriptor.
+ * @fd: file descriptor to write to.
+ * @str: pointer to the data to be written.
+ * @len: length of the data to be written.
+ * Return: number of bytes written on success, or -1 on error
+ */
+
+ssize_t _write(int fd, const char *str, size_t len)
 {
-dprintf(STDERR_FILENO, message, filename);
-exit(code);
+	return (write(fd, str, len));
 }
 
-void print_elf_header(Elf64_Ehdr *girl)
-{
-int i;
+/**
+ * _putchar - writes a character to standard output
+ * @c: character to be written
+ */
 
-printf("ELF Header:\n");
-printf("Magic: ");
-for (i = 0; i < EI_NIDENT; i++)
-printf("%02x ", girl->e_ident[i]);
-printf("\n");
-printf("Class: %s\n", (girl->e_ident[EI_CLASS] == ELFCLASS32) ? "ELF32" : "ELF64");
-printf("Data: %s\n", (girl->e_ident[EI_DATA] == ELFDATA2LSB) ? "2's complement, little endian" :
-(girl->e_ident[EI_DATA] == ELFDATA2MSB) ? "2's complement, big endian" : "Unknown");
-printf("Version: %d (current)\n", girl->e_ident[EI_VERSION]);
-printf("OS/ABI: ");
-switch (girl->e_ident[EI_OSABI])
+void _putchar(char c)
 {
-case ELFOSABI_SYSV:
-printf("UNIX - System V\n");
-break;
-case ELFOSABI_NETBSD:
-printf("UNIX - NetBSD\n");
-break;
-default:
-printf("<unknown: %d>\n", girl->e_ident[EI_OSABI]);
-break;
+	_write(STDOUT_FILENO, &c, 1);
 }
-printf("ABI Version: %d\n", girl->e_ident[EI_ABIVERSION]);
-printf("Type: ");
-switch (girl->e_type)
+
+/**
+ * print_error - prints error to standard error message and exists
+ * @message: error to be printed
+ */
+
+void print_error(const char *message)
 {
-case ET_NONE:
-printf("NONE (Unknown type)\n");
-break;
-case ET_EXEC:
-printf("EXEC (Executable file)\n");
-break;
-case ET_DYN:
-printf("DYN (Shared object file)\n");
-break;
-default:
-printf("<unknown: %d>\n", girl->e_type);
-break;
+	const char *error = "Error\n";
+
+	while (*error)
+		_putchar(*error++);
+	while (*message)
+		_putchar(*message++);
+	_putchar('\n');
+	_write(STDERR_FILENO, message, strlen(message));
+	exit(98);
 }
-printf("Entry point address: 0x%lx\n", (unsigned long)girl->e_entry);
+
+/**
+ * print_elf_header_info - prints info from the elf hedase
+ * @header: a pointer to elf header struct
+ */
+
+
+void print_elf_header_info(const Elf64_Ehdr *header)
+{
+	const char *header_str, *magic_str, *class_str, *elf32_str, *elf64_str, *unknown_str;
+	int i;
+	char hex[3];
+
+	header_str = "ELF Header:\n";
+	while (*header_str)
+		_putchar(*header_str++);
+	magic_str = "  Magic:   ";
+	while (*magic_str)
+		_putchar(*magic_str++);
+	for (i = 0; i < EI_NIDENT; i++)
+	{
+		sprintf(hex, "%02x", header->e_ident[i]);
+		_putchar(' ');
+		_putchar(hex[0]);
+		_putchar(hex[1]);
+	}
+	_putchar('\n');
+
+	class_str = "  Class:                             ";
+	while (*class_str)
+		_putchar(*class_str++);
+	switch (header->e_ident[EI_CLASS])
+	{
+		case ELFCLASS32:
+			elf32_str = "ELF32\n";
+			while (*elf32_str)
+				_putchar(*elf32_str++);
+			break;
+		case ELFCLASS64:
+			elf64_str = "ELF64\n";
+			while (*elf64_str)
+				_putchar(*elf64_str++);
+			break;
+		default:
+			unknown_str = "<unknown>\n";
+			while (*unknown_str)
+				_putchar(*unknown_str++);
+			break;
+	}
 }
+
+/**
+ * main - entry point of the program
+ * @argc: number of cmd line arg
+ * @argv: array of pointers to cmd line str
+ * Return: 0 on success, 98 on eror
+ */
+
 
 int main(int argc, char *argv[])
 {
-int fd;
-Elf64_Ehdr girl;
-ssize_t bytes_read;
+	const char *usage_str = "Usage: elf_header elf_filename\n";
+	const char *open_error_str = "Failed to open file\n";
+	const char *read_error_str = "Failed to read ELF header\n";
+	const char *not_elf_str = "Not an ELF file\n";
+	int fd;
+	ssize_t bytes_read;
+	Elf64_Ehdr header;
 
-if (argc != 2)
-{
-dprintf(STDERR_FILENO, "Usage: %s elf_filename\n", argv[0]);
-exit(98);
-}
-
-fd = open(argv[1], O_RDONLY);
-if (fd == -1)
-error_exit("Error: Cannot open file %s\n", argv[1], 98);
-
-bytes_read = read(fd, &girl, sizeof(girl));
-if (bytes_read != sizeof(girl))
-{
-close(fd);
-error_exit("Error: Cannot read ELF header from file %s\n", argv[1], 98);
-}
-
-close(fd);
-
-print_elf_header(&girl);
-
-return 0;
+	if (argc != 2)
+	{
+		while (*usage_str)
+			_putchar(*usage_str++);
+		exit(98);
+	}
+	fd = open(argv[1], O_RDONLY);
+	if (fd == -1)
+	{
+		while (*open_error_str)
+			_putchar(*open_error_str++);
+		_write(STDERR_FILENO, strerror(errno), strlen(strerror(errno)));
+		_putchar('\n');
+		exit(98);
+	}
+	bytes_read = read(fd, &header, sizeof(header));
+	if (bytes_read != sizeof(header))
+	{
+		close(fd);
+		while (*read_error_str)
+			_putchar(*read_error_str++);
+		exit(98);
+	}
+	if (memcmp(header.e_ident, ELFMAG, SELFMAG) != 0)
+	{
+		close(fd);
+		while (*not_elf_str)
+			_putchar(*not_elf_str++);
+		exit(98);
+	}
+	print_elf_header_info(&header);
+	close(fd);
+	return (0);
 }
