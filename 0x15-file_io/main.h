@@ -15,10 +15,15 @@
 ssize_t read_textfile(const char *filename, size_t letters);
 int create_file(const char *filename, char *text_content);
 int append_text_to_file(const char *filename, char *text_content);
-ssize_t _write(int fd, const char *str, size_t len);
-void _putchar(char c);
-void print_error(const char *message);
-void print_elf_header_info(const Elf64_Ehdr *header);
-int main(int argc, char *argv[]);
+void checkElf(unsigned char *ident);
+void printMagic(unsigned char *ident);
+void printClass(unsigned char *ident);
+void printData(unsigned char *ident);
+void printVersion(unsigned char *ident);
+void printAbi(unsigned char *ident);
+void printOsAbi(unsigned char *ident);
+void printElfType(unsigned int type, unsigned char *ident);
+void printEntryAddress(unsigned long int entry, unsigned char *ident);
+void closeElf(int elfDescriptor);
 
 #endif
